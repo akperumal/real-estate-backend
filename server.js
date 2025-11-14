@@ -1,9 +1,21 @@
 // server.js
 const express = require('express');
-const dotenv = require('dotenv');
-const cors = require('cors');
+const cors = require('cors');  // ← KEEP THIS ONE
 const path = require('path');
-const db = require('./models'); // ONLY ONE LINE
+const { sequelize } = require('./config/db');
+require('dotenv').config();
+
+const app = express();
+
+// Middleware
+app.use(express.json());
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// CORS - Allow Vercel frontend
+app.use(cors({
+  origin: 'https://real-estate-client-gules.vercel.app',
+  credentials: true
+}));
 
 // Routes
 const authRoutes = require('./routes/auth');
@@ -66,7 +78,12 @@ app.get('/', (req, res) => {
     </ul>
   `);
 });
+const PORT = process.env.PORT || 5000;
 
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running on port ${PORT}`);
+  console.log(`Visit: https://real-estate-api-tr3v.onrender.com`);
+});
 const PORT = process.env.PORT || 5000;
 
 // CORS - Allow Vercel frontend
