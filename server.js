@@ -68,10 +68,16 @@ app.get('/', (req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
-// Import models after sequelize
-const { User } = require('./models/user');
+
+// CORS - Allow Vercel frontend
+const cors = require('cors');
+app.use(cors({
+  origin: 'https://real-estate-client-gules.vercel.app',
+  credentials: true
+}));
+
+// Listen on Render's port + 0.0.0.0
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running on https://real-estate-api-tr3v.onrender.com');
-  console.log(`Register: POST http://localhost:${PORT}/api/auth/register`);
-  console.log(`Login:    POST http://localhost:${PORT}/api/auth/login`);
+  console.log(`Server running on port ${PORT}`);
+  console.log(`Visit: https://real-estate-api-tr3v.onrender.com`);
 });
