@@ -24,7 +24,12 @@ db.sequelize.sync({ alter: true })
   .catch(err => console.error('DB Error:', err));
 
 // Middleware
-app.use(cors());
+const cors = require('cors');
+
+app.use(cors({
+  origin: 'https://real-estate-client-gules.vercel.app',
+  credentials: true
+}));
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
