@@ -12,14 +12,34 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // CORS - Allow Vercel frontend
-app.use(cors());
+app.use(cors({
+  origin: 'https://real-estate-client-gules.vercel.app',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+// Handle preflight
+app.options('*', cors());
+
+// Log requests
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+  next();
+});
 
 // Routes
-const authRoutes = require('./routes/auth');
-const plotRoutes = require('./routes/plot');
+let authRoutes, plotRoutes;
+try {
+  authRoutes = require('./routes/auth');
+  plotRoutes = require('./routes/plot');
+  console.log('Routes loaded');
+} catch (err) {
+  console.error('Route import failed:', err.message);
+}
 
-app.use('/api/auth', authRoutes);
-app.use('/api/plots', plotRoutes);
+if (authRoutes) app.use('/api/auth', authRoutes);
+if (plotRoutes) app.use('/api/plots', plotRoutes);
 
 // Test Route
 app.get('/api/test', (req, res) => {
@@ -28,7 +48,7 @@ app.get('/api/test', (req, res) => {
 
 // Home Route
 app.get('/', (req, res) => {
-  res.send('<h1>Real Estate Backend API</h1><p>Endpoints:</p><ul><li>POST /api/auth/register</li><li>POST /api/auth/login</li><li>GET /api/plots</li></ul>');
+  res.send('<h1>Real Estate Backend API</h1><p>Status: LIVE</p>');
 });
 
 // Global Error Handler
@@ -36,11 +56,11 @@ app.use((err, req, res, next) => {
   console.error('Server Error:', err);
   res.status(500).json({ 
     message: 'Internal Server Error',
-    error: process.env.NODE_ENV === 'production' ? {} : err.message
+    error: err.message
   });
 });
 
-// 404 Handler
+// 404
 app.use('*', (req, res) => {
   res.status(404).json({ message: 'Route not found' });
 });
@@ -48,15 +68,23 @@ app.use('*', (req, res) => {
 // Start Server
 const PORT = process.env.PORT || 5000;
 
-sequelize.sync({ alter: false })
-  .then(() => {
-    console.log('Database connected:', process.env.DATABASE_URL ? 'YES' : 'NO');
+async function startServer() {
+  try {
+    if (!process.env.DATABASE_URL) {
+      throw new Error('DATABASE_URL is not set');
+    }
+    await sequelize.authenticate();
+    console.log('Database connected');
+    await sequelize.sync({ alter: false });
+    console.log('Database synced');
     app.listen(PORT, '0.0.0.0', () => {
       console.log(`Server running on port ${PORT}`);
       console.log(`Visit: https://real-estate-api-xpqq.onrender.com`);
     });
-  })
-  .catch(err => {
-    console.error('Database connection failed:', err);
+  } catch (err) {
+    console.error('Startup failed:', err.message);
     process.exit(1);
-  });
+  }
+}
+
+startServer();
