@@ -12,12 +12,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // CORS - Allow Vercel frontend
-app.use(cors({
-  origin: 'https://real-estate-client-gules.vercel.app',
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+app.use(cors());
 
 // Routes
 const authRoutes = require('./routes/auth');
