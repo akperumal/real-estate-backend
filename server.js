@@ -50,7 +50,7 @@ const PORT = process.env.PORT || 5000;
 
 sequelize.sync({ alter: false })
   .then(() => {
-    console.log('Database connected & synced');
+    console.log('Database connected:', process.env.DATABASE_URL ? 'YES' : 'NO');
     app.listen(PORT, '0.0.0.0', () => {
       console.log(`Server running on port ${PORT}`);
       console.log(`Visit: https://real-estate-api-xpqq.onrender.com`);
