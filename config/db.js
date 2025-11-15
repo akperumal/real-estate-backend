@@ -2,11 +2,12 @@ const { Sequelize } = require('sequelize');
 require('dotenv').config();
 
 if (!process.env.DATABASE_URL) {
-  console.error('ERROR: DATABASE_URL is not set in environment');
+  console.error('FATAL: DATABASE_URL is not set!');
   process.exit(1);
 }
 
-console.log('Connecting to DB:', process.env.DATABASE_URL.replace(/:([^:@]+)@/, ':***@')); // Hide password
+console.log('DB URL set:', !!process.env.DATABASE_URL);
+console.log('Connecting to:', process.env.DATABASE_URL.replace(/:[^:@]+@/, ':***@'));
 
 const sequelize = new Sequelize(process.env.DATABASE_URL, {
   dialect: 'postgres',
