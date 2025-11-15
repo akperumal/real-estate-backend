@@ -82,8 +82,8 @@ async function startServer() {
     // Bind to 0.0.0.0 for Railway
     app.listen(PORT, '0.0.0.0', () => {
       console.log(`Server running on port ${PORT}`);
-      console.log(`Railway App URL: https://real-estate-backend.up.railway.app`);
-      console.log('=== READY FOR TRAFFIC ===');
+      console.log(`App URL: https://real-estate-backend.up.railway.app`);
+      
     });
   } catch (err) {
     console.error('FATAL STARTUP ERROR:', err.message);
