@@ -1,26 +1,33 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const { sequelize } = require('./config/db');
 require('dotenv').config();
+
+// === DEBUG: LOG ENV ===
+console.log('=== ENV CHECK ===');
+console.log('DATABASE_URL:', process.env.DATABASE_URL ? 'SET' : 'MISSING');
+console.log('NODE_ENV:', process.env.NODE_ENV || 'undefined');
+console.log('==================');
+
+// === IMPORT DB AFTER LOGGING ===
+let sequelize;
+try {
+  const db = require('./config/db');
+  sequelize = db.sequelize;
+} catch (err) {
+  console.error('DB IMPORT FAILED:', err.message);
+  process.exit(1);
+}
 
 const app = express();
 
-// === DEBUG: Log env on startup ===
-console.log('=== ENVIRONMENT CHECK ===');
-console.log('DATABASE_URL:', process.env.DATABASE_URL ? 'SET' : 'MISSING');
-console.log('NODE_ENV:', process.env.NODE_ENV || 'undefined');
-console.log('==========================');
-
-// === CORS: Allow Vercel frontend ===
+// === CORS ===
 app.use(cors({
   origin: 'https://real-estate-client-gules.vercel.app',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
-
-// Handle preflight
 app.options('*', cors());
 
 // === Middleware ===
@@ -39,12 +46,11 @@ let authRoutes, plotRoutes;
 try {
   authRoutes = require('./routes/auth');
   plotRoutes = require('./routes/plot');
-  console.log('Routes loaded successfully');
+  console.log('Routes loaded');
 } catch (err) {
-  console.error('FAILED to load routes:', err.message);
+  console.error('ROUTE IMPORT FAILED:', err.message);
 }
 
-// Mount routes only if loaded
 if (authRoutes) app.use('/api/auth', authRoutes);
 if (plotRoutes) app.use('/api/plots', plotRoutes);
 
@@ -60,10 +66,7 @@ app.get('/', (req, res) => {
 // === Error Handlers ===
 app.use((err, req, res, next) => {
   console.error('UNHANDLED ERROR:', err);
-  res.status(500).json({ 
-    message: 'Server Error',
-    error: err.message 
-  });
+  res.status(500).json({ message: 'Server Error', error: err.message });
 });
 
 app.use('*', (req, res) => {
@@ -76,11 +79,11 @@ const PORT = process.env.PORT || 5000;
 async function startServer() {
   try {
     if (!process.env.DATABASE_URL) {
-      throw new Error('DATABASE_URL is not set in environment');
+      throw new Error('DATABASE_URL is not set');
     }
 
     await sequelize.authenticate();
-    console.log('Database connected successfully');
+    console.log('Database connected');
 
     await sequelize.sync({ alter: false });
     console.log('Database synced');
