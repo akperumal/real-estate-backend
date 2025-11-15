@@ -82,7 +82,7 @@ async function startServer() {
 
     app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-  console.log(`Visit: https://real-estate-backend.up.railway.app`);
+ console.log(`Visit: https://real-estate-backend.up.railway.app`);
 });
   } catch (err) {
     console.error('FATAL STARTUP ERROR:', err.message);
