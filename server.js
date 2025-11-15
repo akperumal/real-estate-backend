@@ -66,7 +66,7 @@ app.use('*', (req, res) => {
 });
 
 // Start Server
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
 
 async function startServer() {
   try {
@@ -80,10 +80,10 @@ async function startServer() {
     await sequelize.sync({ alter: false });
     console.log('Database synced');
 
-    app.listen(PORT, '0.0.0.0', () => {
-      console.log(`Server running on port ${PORT}`);
-      console.log(`Visit: https://real-estate-api-xpqq.onrender.com`);
-    });
+    app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+  console.log(`Visit: https://real-estate-backend.up.railway.app`);
+});
   } catch (err) {
     console.error('FATAL STARTUP ERROR:', err.message);
     process.exit(1);
